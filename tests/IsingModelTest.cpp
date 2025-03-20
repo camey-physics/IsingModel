@@ -18,13 +18,6 @@ TEST(IsingModelTest, InitializesSpinLattice) {
 TEST(IsingModelTest, PeriodicBoundaryConditions) {
     int L = 4;
     IsingModel model(L);
-    // for (int i = 0; i < L; ++i) {
-    //     for (int j = 0; j < L; ++j) {
-    //         for (int k = 0; k < L; ++k) {
-    //             model.setSpin(i, j, k, 1);
-    //         }
-    //     }
-    // }
     model.setSpin(L-1, L-1, L-1, -1);
     EXPECT_TRUE(model.getSpin(-1, -1, -1) == model.getSpin(L-1, L-1, L-1));
 }
@@ -45,9 +38,15 @@ TEST(IsingModelTest, DefaultParameters) {
 }
 
 TEST(IsingModelTest, CalcEnergy) {
-    int L = 4;
+    int L = 5;
     IsingModel model(L);
     EXPECT_EQ(model.getEnergy(), -3 *L *L *L);
+    model.setSpin(2,0,0,-1);
+    EXPECT_EQ(model.getEnergy(), -3 *L *L *L + 12);
+    model.setSpin(1,0,0,-1);
+    EXPECT_EQ(model.getEnergy(), -3 *L *L *L + 20);
+    model.setSpin(0,0,0,-1);
+    EXPECT_EQ(model.getEnergy(), -3 *L *L *L + 28);
 }
 
 int main(int argc, char **argv) {

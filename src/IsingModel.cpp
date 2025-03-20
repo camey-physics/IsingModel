@@ -45,7 +45,9 @@ void IsingModel::setSpin(int i, int j, int k, int val) {
     if (val != 1 && val != -1) {
         throw std::invalid_argument("Spin value must be +1 or -1");
     }
+    double deltaE = calcDeltaE(index(i, j, k));
     spins_[index(i, j, k)] = val;
+    energy_ += deltaE;
 }
 
 int IsingModel::mod(int i) const {
