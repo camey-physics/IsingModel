@@ -97,5 +97,4 @@ void IsingModel::metropolis(int i) {
     if (weight >= 1.0 || gsl_rng_uniform(r) < weight) {
         spins_[i] *= -1;
     }
-    // (gsl_rng_uniform(r) < weight) ? spins_[i] *= -1 : ;
 }

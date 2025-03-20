@@ -6,9 +6,9 @@ TEST(IsingModelTest, InitializesSpinLattice) {
     int L = 4;
     IsingModel model(L);
 
-    for (int i = 0; i < L-1; ++i) {
-        for (int j = 0; j < L-1; ++j) {
-            for (int k = 0; k < L-1; ++k) {
+    for (int i = 0; i < L; ++i) {
+        for (int j = 0; j < L; ++j) {
+            for (int k = 0; k < L; ++k) {
                 EXPECT_TRUE(model.getSpin(i, j, k) == +1 || model.getSpin(i,j,k) == -1);
             }
         }
