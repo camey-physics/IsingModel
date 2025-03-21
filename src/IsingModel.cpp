@@ -41,11 +41,22 @@ double IsingModel::getEnergy() const {
     return energy_;
 }
 
+double IsingModel::getBeta() const{
+    return beta_;
+}
+
 void IsingModel::setSpin(int i, int j, int k, int val) {
     if (val != 1 && val != -1) {
         throw std::invalid_argument("Spin value must be +1 or -1");
     }
+    int local_h = calcLocalH(index(i, j, k));
+    // double deltaE = calcDeltaE(index(i, j, k));
     spins_[index(i, j, k)] = val;
+    energy_ += -2 *J_ *local_h *val; // deltaE = -2*J*s_i *sum_j(s_<ij>)
+}
+
+void IsingModel::setBeta(double beta) {
+    beta_ = beta;
 }
 
 int IsingModel::mod(int i) const {
@@ -72,29 +83,57 @@ void IsingModel::initializeNT() {
 void IsingModel::calcEnergy() {
     energy_ = 0.0;
     for (int i = 0; i < L_ *L_ *L_; ++i) {
-        for (int n = 0; n < 6; ++n) {
+        for (int n = 0; n < 6; n += 2) {
             int j = NT_[i *6 + n];
             energy_ += spins_[i] *spins_[j];
         }
     }
-    energy_ *= -J_ /2.0;
+    energy_ *= -J_;
 }
 
-
-double IsingModel::calcDeltaE(int i) {
-    double deltaE = 0.0;
+int IsingModel::calcLocalH(int i) const {
+    int local_h = 0;
     for (int n = 0; n < 6; ++n) {
         int j = NT_[i *6 + n];
-        deltaE += spins_[j];
+        local_h += spins_[j];
     }
-    deltaE *= 2 *J_ *spins_[i];
-    return deltaE;
+    return local_h;
 }
 
 void IsingModel::metropolis(int i) {
-    double deltaE = calcDeltaE(i); // Can calculate and save a weight table so we don't recalculate weights
-    double weight = exp(-beta_ *deltaE);
-    if (weight >= 1.0 || gsl_rng_uniform(r) < weight) {
+    // Can pre-calculate and save a weight table so we don't recalculate each time
+    double deltaE = 2 * J_ * spins_[i] * calcLocalH(i);
+    if (deltaE <= 0 || gsl_rng_uniform(r) < exp(-beta_ * deltaE)) {
         spins_[i] *= -1;
+    }
+}
+
+void IsingModel::heatBath(int i) {
+    int localH = calcLocalH(i);
+    double probUp = 1 /(1 + exp(-2 *beta_ *J_ *localH));
+    if (gsl_rng_uniform(r) < probUp) {
+        spins_[i] = 1;
+    }
+    else {
+        spins_[i] = -1;
+    }
+}
+
+void IsingModel::MonteCarloSweep(int numSweeps, bool sequential, void (IsingModel::*update)(int)) {
+    if (sequential) {
+        // Sequential update
+        for (int sweep = 0; sweep < numSweeps; ++sweep) {
+            for (int s = 0; s < L_ * L_ * L_; ++s) {
+                (this->*update)(s);
+            }
+        }
+    } else {
+        // Random update
+        for (int sweep = 0; sweep < numSweeps; ++sweep) {
+            for (int s = 0; s < L_ * L_ * L_; ++s) {
+                int ind = gsl_rng_uniform_int(r, L_ * L_ * L_);
+                (this->*update)(ind);
+            }
+        }
     }
 }
