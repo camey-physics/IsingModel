@@ -24,8 +24,13 @@ public:
     int getSpin(int i, int j, int k) const; // Accessor for spins
     std::vector<int> getNeighbors(int index) const;
     double getEnergy() const;
+    double getBeta() const;
 
     void setSpin(int i, int j, int k, int val);
+    void setBeta(double beta);
+    void calcEnergy();
+    void metropolis(int i);
+    void MonteCarloSweep(int numSweeps, bool sequential=0, void (IsingModel::*update)(int) = &IsingModel::metropolis);
 
 private:
     IsingParams params_;
@@ -42,9 +47,7 @@ private:
     int mod(int i) const;
     void initializeNT();
     gsl_rng *r;
-    void calcEnergy();
     double calcDeltaE(int i);
-    void metropolis(int i);
 
 };
 

@@ -41,6 +41,10 @@ double IsingModel::getEnergy() const {
     return energy_;
 }
 
+double IsingModel::getBeta() const{
+    return beta_;
+}
+
 void IsingModel::setSpin(int i, int j, int k, int val) {
     if (val != 1 && val != -1) {
         throw std::invalid_argument("Spin value must be +1 or -1");
@@ -48,6 +52,10 @@ void IsingModel::setSpin(int i, int j, int k, int val) {
     double deltaE = calcDeltaE(index(i, j, k));
     spins_[index(i, j, k)] = val;
     energy_ += deltaE;
+}
+
+void IsingModel::setBeta(double beta) {
+    beta_ = beta;
 }
 
 int IsingModel::mod(int i) const {
@@ -98,5 +106,17 @@ void IsingModel::metropolis(int i) {
     double weight = exp(-beta_ *deltaE);
     if (weight >= 1.0 || gsl_rng_uniform(r) < weight) {
         spins_[i] *= -1;
+    }
+}
+
+void IsingModel::MonteCarloSweep(int numSweeps, bool sequential, void (IsingModel::*update)(int)) {
+    for (int sweep = 0; sweep < numSweeps; ++sweep) {
+        for (int s = 0; s < L_ *L_ *L_; ++s) {
+            int ind = s;
+            if (sequential == 0) {
+                ind = gsl_rng_uniform_int(r, L_ *L_ *L_);
+            }
+            (this->*update)(ind);
+        }
     }
 }

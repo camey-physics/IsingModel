@@ -49,6 +49,21 @@ TEST(IsingModelTest, CalcEnergy) {
     EXPECT_EQ(model.getEnergy(), -3 *L *L *L + 28);
 }
 
+TEST(IsingModelTest, MetropolisSweep) {
+    int L = 5;
+    IsingModel model(L);
+    model.setBeta(0.5);
+    double avg_energy = 0.0;
+    for (int i = 0; i < 100; ++i) {
+        model.MonteCarloSweep(100);
+        model.calcEnergy();
+        avg_energy += model.getEnergy() /L /L /L;
+    }
+    avg_energy /= 100;
+    
+    EXPECT_NEAR(avg_energy, -0.1495, 1e-3);
+}
+
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
