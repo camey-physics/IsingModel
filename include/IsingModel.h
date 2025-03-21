@@ -30,6 +30,7 @@ public:
     void setBeta(double beta);
     void calcEnergy();
     void metropolis(int i);
+    void heatBath(int i);
     void MonteCarloSweep(int numSweeps, bool sequential=0, void (IsingModel::*update)(int) = &IsingModel::metropolis);
 
 private:
@@ -47,7 +48,7 @@ private:
     int mod(int i) const;
     void initializeNT();
     gsl_rng *r;
-    double calcDeltaE(int i);
+    int calcLocalH(int i) const;
 
 };
 
