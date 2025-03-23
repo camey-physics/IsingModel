@@ -52,7 +52,7 @@ TEST(IsingModelTest, CalcEnergy) {
 }
 
 TEST(IsingModelTest, MetropolisSweep) {
-    int L = 4;
+    int L = 10;
     int numSamples = 100;
     double beta = 0.1;
     IsingModel model(L);
@@ -69,7 +69,7 @@ TEST(IsingModelTest, MetropolisSweep) {
 }
 
 TEST(IsingModelTest, HeatBathSweep) {
-    int L = 4;
+    int L = 10;
     int numSamples = 100;
     double beta = 0.1;
     IsingModel model(L);

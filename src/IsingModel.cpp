@@ -3,15 +3,30 @@
 #include <stdexcept>
 #include <cmath>
 
-IsingModel::IsingModel(int L, double J, double beta, int seed) : L_(L), J_(J), beta_(beta), seed_(seed), spins_(L *L *L, 1), params_{L, J, beta, seed} {
+IsingModel::IsingModel(int L, double J, double beta, int seed) : L_(L), J_(J), beta_(beta), seed_(seed), params_{L, J, beta, seed} {
+    spins_.resize(L *L *L, 1);
     r = gsl_rng_alloc(gsl_rng_mt19937);
     gsl_rng_set(r, seed_);
-    // for (int i = 0; i < L_ * L_ * L_; ++i) {
-    //     spins_[i] = (gsl_rng_uniform(r) < 0.5) ? -1 : 1;
-    // }
-    // energy_ = -J_ *L_ *L_ *L_;
     initializeNT();
     calcEnergy();
+}
+
+
+void IsingModel::initializeNT() {
+    NT_.resize(L_ *L_ *L_ *6);
+    for (int i = 0; i < L_; ++i) {
+        for (int j = 0; j < L_; ++j) {
+            for (int k = 0; k < L_; ++k) {
+                int ind = index(i, j, k);
+                NT_[ind*6+0] = index(i-1, j, k);
+                NT_[ind*6+1] = index(i+1, j, k);
+                NT_[ind*6+2] = index(i, j-1, k);
+                NT_[ind*6+3] = index(i, j+1, k);
+                NT_[ind*6+4] = index(i, j, k-1);
+                NT_[ind*6+5] = index(i, j, k+1);
+            }
+        }
+    }
 }
 
 IsingModel::~IsingModel() {
@@ -50,9 +65,8 @@ void IsingModel::setSpin(int i, int j, int k, int val) {
         throw std::invalid_argument("Spin value must be +1 or -1");
     }
     int local_h = calcLocalH(index(i, j, k));
-    // double deltaE = calcDeltaE(index(i, j, k));
     spins_[index(i, j, k)] = val;
-    energy_ += -2 *J_ *local_h *val; // deltaE = -2*J*s_i *sum_j(s_<ij>)
+    energy_ += -2 *J_ *local_h *val; // deltaE = -2*J*s_i*sum_j(s_<ij>)
 }
 
 void IsingModel::setBeta(double beta) {
@@ -61,23 +75,6 @@ void IsingModel::setBeta(double beta) {
 
 int IsingModel::mod(int i) const {
         return (i % L_ + L_) % L_;   
-}
-
-void IsingModel::initializeNT() {
-    NT_.resize(L_ *L_ *L_ *6);
-    for (int i = 0; i < L_; ++i) {
-        for (int j = 0; j < L_; ++j) {
-            for (int k = 0; k < L_; ++k) {
-                int ind = index(i, j, k);
-                NT_[ind*6+0] = index(i-1, j, k);
-                NT_[ind*6+1] = index(i+1, j, k);
-                NT_[ind*6+2] = index(i, j-1, k);
-                NT_[ind*6+3] = index(i, j+1, k);
-                NT_[ind*6+4] = index(i, j, k-1);
-                NT_[ind*6+5] = index(i, j, k+1);
-            }
-        }
-    }
 }
 
 void IsingModel::calcEnergy() {

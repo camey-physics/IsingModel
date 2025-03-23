@@ -10,6 +10,12 @@ set(SRC_DIR src)
 set(INCLUDE_DIR include)
 set(TEST_DIR tests)
 
+# Compiler optimizations for g++ and Clang
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    set(CMAKE_CXX_FLAGS_RELEASE "-O3 -march=native -DNDEBUG")
+    set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g")
+endif()
+
 # Add library
 add_library(IsingModel ${SRC_DIR}/IsingModel.cpp)
 target_include_directories(IsingModel PUBLIC ${INCLUDE_DIR})
