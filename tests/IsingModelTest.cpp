@@ -3,6 +3,7 @@
 #include <vector>
 #include <iostream>
 #include <cmath>
+#include <tuple>
 
 TEST(IsingModelTest, InitializesSpinLattice) {
     int L = 4;
@@ -33,16 +34,25 @@ TEST(IsingModelTest, NeighborTable) {
     EXPECT_EQ(model.getNeighbors(L*L), expectedNeighbors);
 }
 
+TEST(IsingModelTest, TestParams) {
+    IsingModel model;
+    auto [L, J, beta, seed] = model.getParams();
+    EXPECT_EQ(L, 4);
+    EXPECT_EQ(beta, 1.0);
+    EXPECT_EQ(J, 1.0);
+    EXPECT_EQ(seed, 5000);
+}
+
 TEST(IsingModelTest, CalcEnergy) {
     int L = 5;
     IsingModel model(L);
-    EXPECT_EQ(model.getEnergy(), -3 *L *L *L);
+    EXPECT_NEAR(model.calcEnergy(), -3.0, 1e-10);
     model.setSpin(1,0,0,-1);
-    EXPECT_EQ(model.getEnergy(), -3 *L *L *L + 12);
+    EXPECT_NEAR(model.calcEnergy(), -3.0 + 12.0 /L /L /L, 1e-10);
     model.setSpin(0,0,0,-1);
-    EXPECT_EQ(model.getEnergy(), -3 *L *L *L + 20);
+    EXPECT_NEAR(model.calcEnergy(), -3.0 + 20.0 /L /L /L, 1e-10);
     model.setSpin(0,L-1,0,-1);
-    EXPECT_EQ(model.getEnergy(), -3 *L *L *L + 28);
+    EXPECT_NEAR(model.calcEnergy(), -3.0 + 28.0 /L /L /L, 1e-10);
 }
 
 TEST(IsingModelTest, MetropolisSweep) {
@@ -51,15 +61,17 @@ TEST(IsingModelTest, MetropolisSweep) {
     double beta = 0.1;
     IsingModel model(L);
     model.setBeta(beta);
-    double avg_energy = 0.0;
+    double avg_energy = 0.0, avg_mag = 0.0;
     for (int i = 0; i < numSamples; ++i) {
-        model.MonteCarloSweep(100);
-        model.calcEnergy();
-        avg_energy += model.getEnergy() /L /L /L;
+        model.monteCarloSweep(100);
+        avg_energy += model.calcEnergy();
+        avg_mag += model.calcMagnetization();
     }
     avg_energy /= numSamples;
+    avg_mag /= numSamples;
     
     EXPECT_NEAR(avg_energy, -3/2 *tanh(3*beta), 5e-2);
+    EXPECT_NEAR(avg_mag, 0.0, 5e-2);
 }
 
 TEST(IsingModelTest, HeatBathSweep) {
@@ -68,15 +80,17 @@ TEST(IsingModelTest, HeatBathSweep) {
     double beta = 0.1;
     IsingModel model(L);
     model.setBeta(beta);
-    double avg_energy = 0.0;
+    double avg_energy = 0.0, avg_mag = 0.0;
     for (int i = 0; i < numSamples; ++i) {
-        model.MonteCarloSweep(100, 0, &IsingModel::heatBath);
-        model.calcEnergy();
-        avg_energy += model.getEnergy() /L /L /L;
+        model.monteCarloSweep(100, 0, &IsingModel::heatBath);
+        avg_energy += model.calcEnergy();
+        avg_mag += model.calcMagnetization();
     }
     avg_energy /= numSamples;
+    avg_mag /= numSamples;
     
     EXPECT_NEAR(avg_energy, -3/2 *tanh(3*beta), 5e-2);
+    EXPECT_NEAR(avg_mag, 0.0, 5e-2);
 }
 
 int main(int argc, char **argv) {
