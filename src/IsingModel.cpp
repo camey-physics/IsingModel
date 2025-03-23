@@ -3,7 +3,7 @@
 #include <stdexcept>
 #include <cmath>
 
-IsingModel::IsingModel(int L, double J, double beta, int seed) : L_(L), J_(J), beta_(beta), seed_(seed), params_{L, J, beta, seed} {
+IsingModel::IsingModel(int L, double beta, int seed, double J) : L_(L), J_(J), beta_(beta), seed_(seed) {
     spins_.resize(L *L *L, 1);
     r = gsl_rng_alloc(gsl_rng_mt19937);
     gsl_rng_set(r, seed_);
@@ -31,10 +31,6 @@ void IsingModel::initializeNT() {
 
 IsingModel::~IsingModel() {
     gsl_rng_free(r);
-}
-
-IsingParams IsingModel::getParameters() const {
-    return params_;
 }
 
 int IsingModel::getSpin(int i, int j, int k) const {
