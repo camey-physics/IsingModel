@@ -4,6 +4,7 @@
 #include <vector>
 #include <gsl/gsl_rng.h>
 #include <memory>
+#include <tuple>
 
 class IsingModel {
 public:
@@ -12,15 +13,17 @@ public:
 
     int getSpin(int i, int j, int k) const; // Accessor for spins
     std::vector<int> getNeighbors(int index) const;
-    double getEnergy() const;
+    double calcEnergy() const;
     double getBeta() const;
-
+    double calcMagnetization() const;
+    auto getParams() const {
+        return std::make_tuple(L_, J_, beta_, seed_);
+    }
     void setSpin(int i, int j, int k, int val);
     void setBeta(double beta);
-    void calcEnergy();
     void metropolis(int i);
     void heatBath(int i);
-    void MonteCarloSweep(int numSweeps, bool sequential=0, void (IsingModel::*update)(int) = &IsingModel::metropolis);
+    void monteCarloSweep(int numSweeps, bool sequential=0, void (IsingModel::*update)(int) = &IsingModel::metropolis);
 
 private:
     int L_;

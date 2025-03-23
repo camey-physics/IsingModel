@@ -11,7 +11,6 @@ IsingModel::IsingModel(int L, double beta, int seed, double J) : L_(L), J_(J), b
     calcEnergy();
 }
 
-
 void IsingModel::initializeNT() {
     NT_.resize(L_ *L_ *L_ *6);
     for (int i = 0; i < L_; ++i) {
@@ -48,12 +47,16 @@ std::vector<int> IsingModel::getNeighbors(int ind) const { // Only used for test
     return neighbors;
 }
 
-double IsingModel::getEnergy() const {
-    return energy_;
-}
-
 double IsingModel::getBeta() const{
     return beta_;
+}
+
+double IsingModel::calcMagnetization() const {
+    int mag = 0;
+    for (int i = 0; i < L_ *L_ *L_; ++i) {
+        mag += spins_[i];
+    }
+    return static_cast<double>(mag) / (L_ * L_ * L_);
 }
 
 void IsingModel::setSpin(int i, int j, int k, int val) {
@@ -73,15 +76,16 @@ int IsingModel::mod(int i) const {
         return (i % L_ + L_) % L_;   
 }
 
-void IsingModel::calcEnergy() {
-    energy_ = 0.0;
+double IsingModel::calcEnergy() const {
+    double energy = 0.0;
     for (int i = 0; i < L_ *L_ *L_; ++i) {
         for (int n = 0; n < 6; n += 2) {
             int j = NT_[i *6 + n];
-            energy_ += spins_[i] *spins_[j];
+            energy += spins_[i] *spins_[j];
         }
     }
-    energy_ *= -J_;
+    energy *= -J_;
+    return energy /L_ /L_ /L_;
 }
 
 int IsingModel::calcLocalH(int i) const {
@@ -112,7 +116,7 @@ void IsingModel::heatBath(int i) {
     }
 }
 
-void IsingModel::MonteCarloSweep(int numSweeps, bool sequential, void (IsingModel::*update)(int)) {
+void IsingModel::monteCarloSweep(int numSweeps, bool sequential, void (IsingModel::*update)(int)) {
     if (sequential) {
         // Sequential update
         for (int sweep = 0; sweep < numSweeps; ++sweep) {
