@@ -33,12 +33,6 @@ TEST(IsingModelTest, NeighborTable) {
     EXPECT_EQ(model.getNeighbors(L*L), expectedNeighbors);
 }
 
-TEST(IsingModelTest, DefaultParameters) {
-    IsingModel model;
-    IsingParams defaultParams{4, 1.0, 1.0, 5000};
-    EXPECT_EQ(model.getParameters(), defaultParams);
-}
-
 TEST(IsingModelTest, CalcEnergy) {
     int L = 5;
     IsingModel model(L);

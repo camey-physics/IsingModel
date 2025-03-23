@@ -5,23 +5,11 @@
 #include <gsl/gsl_rng.h>
 #include <memory>
 
-struct IsingParams {
-    int L;
-    double J;
-    double beta;
-    int seed;
-    
-    bool operator==(const IsingParams& other) const {
-        return L == other.L && J == other.J && seed == other.seed;
-    }
-};
-
 class IsingModel {
 public:
-    explicit IsingModel(int L = 4, double J = 1, double beta = 1, int seed = 5000); // Constructor
+    explicit IsingModel(int L = 4, double beta = 1, int seed = 5000, double J = 1); // Constructor
     ~IsingModel();
 
-    IsingParams getParameters() const;
     int getSpin(int i, int j, int k) const; // Accessor for spins
     std::vector<int> getNeighbors(int index) const;
     double getEnergy() const;
@@ -35,7 +23,6 @@ public:
     void MonteCarloSweep(int numSweeps, bool sequential=0, void (IsingModel::*update)(int) = &IsingModel::metropolis);
 
 private:
-    IsingParams params_;
     int L_;
     double J_;
     double beta_;
@@ -45,8 +32,8 @@ private:
 
     double energy_;
 
-    int index(int i, int j, int k) const;
-    int mod(int i) const;
+    inline int index(int i, int j, int k) const;
+    inline int mod(int i) const;
     void initializeNT();
     gsl_rng *r;
     int calcLocalH(int i) const;
