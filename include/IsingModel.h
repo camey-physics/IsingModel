@@ -23,7 +23,7 @@ public:
     void setBeta(double beta);
     void metropolis(int i);
     void heatBath(int i);
-    void monteCarloSweep(int numSweeps, bool sequential=0, void (IsingModel::*update)(int) = &IsingModel::metropolis);
+    void monteCarloSweep(int numSweeps, bool sequential=false, void (IsingModel::*update)(int) = &IsingModel::metropolis);
 
 private:
     int L_;
