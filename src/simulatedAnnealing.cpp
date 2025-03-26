@@ -95,12 +95,12 @@ void runSimulatedAnnealing(IsingModel &model, double betaStart, double betaEnd, 
 
 int main() {
     // Initialize Ising model
-    IsingModel model(5, 1.0, 5000, 1.0);
+    IsingModel model(8, 1.0, 5000, 1.0);
 
     // Simulated annealing parameters
-    double betaStart = 0.05;
-    double betaEnd = 0.3;
-    double betaStep = 0.025;
+    double betaStart = 0.15;
+    double betaEnd = 0.25;
+    double betaStep = 0.01;
     int numSweeps = 1000;
     int equilibrationSweeps = 100000;
     int numMeasurements = 1000;
