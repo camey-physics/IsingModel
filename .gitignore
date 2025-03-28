@@ -19,4 +19,3 @@ a.out
 *.so
 *.dll
 *.dylib
-src/simulated_annealing.cpp

@@ -20,6 +20,11 @@ endif()
 add_library(IsingModel ${SRC_DIR}/IsingModel.cpp)
 target_include_directories(IsingModel PUBLIC ${INCLUDE_DIR})
 
+# Add simulated annealing executable
+add_executable(simulatedAnnealing ${SRC_DIR}/simulatedAnnealing.cpp)
+target_link_libraries(simulatedAnnealing PRIVATE IsingModel GSL::gsl GSL::gslcblas)
+target_include_directories(simulatedAnnealing PRIVATE ${INCLUDE_DIR})
+
 # Enable testing
 enable_testing()
 find_package(GTest REQUIRED)

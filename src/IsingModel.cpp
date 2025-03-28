@@ -116,6 +116,38 @@ void IsingModel::heatBath(int i) {
     }
 }
 
+void IsingModel::wolffUpdate() {
+    std::vector<bool> visited(L_ * L_ * L_, false);
+    std::vector<int> stack;
+
+    // Pick a random starting spin
+    int ind = gsl_rng_uniform_int(r, L_ * L_ * L_);
+    int clusterSpin = spins_[ind]; // Spin type of cluster
+    stack.push_back(ind);
+    visited[ind] = true;
+
+    double P_add = 1 - exp(-2 * beta_ * J_); // Cluster bond probability
+
+    while (!stack.empty()) {
+        int i = stack.back();
+        stack.pop_back();
+
+        // Flip spin
+        spins_[i] *= -1;
+
+        // Check neighbors
+        for (int n = 0; n < 6; ++n) {
+            int j = NT_[i * 6 + n]; // Neighbor index
+
+            // If neighbor has the same spin and isn't visited, try adding to cluster
+            if (!visited[j] && spins_[j] == clusterSpin && gsl_rng_uniform(r) < P_add) {
+                stack.push_back(j);
+                visited[j] = true;
+            }
+        }
+    }
+}
+
 void IsingModel::monteCarloSweep(int numSweeps, bool sequential, void (IsingModel::*update)(int)) {
     if (sequential) {
         // Sequential update
