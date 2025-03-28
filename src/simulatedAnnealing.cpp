@@ -115,7 +115,6 @@ int main() {
     int equilibrationSweeps = 500;
     int numMeasurements = 100;
 
-
     model.monteCarloSweep(1000, IsingModel::UpdateMethod::heatBath, true);
 
     // Run the simulated annealing and measurement of Binder cumulant

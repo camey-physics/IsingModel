@@ -8,12 +8,12 @@
 
 class IsingModel {
 public:
-    explicit IsingModel(int L = 4, double beta = 1, int seed = 5000, double J = 1); // Constructor
+    explicit IsingModel(int L = 4, double beta = 1, int seed = 5000, double J = 1);
     ~IsingModel();
 
     enum class UpdateMethod { metropolis, heatBath, wolff };
 
-    int getSpin(int i, int j, int k) const; // Accessor for spins
+    int getSpin(int i, int j, int k) const;
     std::vector<int> getNeighbors(int index) const;
     double calcEnergy() const;
     double getBeta() const;

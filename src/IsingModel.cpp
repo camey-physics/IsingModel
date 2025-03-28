@@ -152,22 +152,6 @@ int IsingModel::wolff() {
     return clusterSize;
 }
 
-// void IsingModel::monteCarloSweep(int numSweeps, UpdateMethod method, bool sequential) {
-//     if (method == UpdateMethod::wolff) {
-//         if (sequential) {
-//             throw std::invalid_argument("Wolff update cannot be used with sequential mode!");
-//         }
-//         else {
-//             for (int sweep = 0; sweep < numSweeps; ++sweep) {
-//                 int numFlipped = 0;
-//                 while (numFlipped < L_ *L_ *L_) {
-//                     numFlipped += wolff();
-//                 }
-//             }
-//         }
-//     }
-// }
-
 void IsingModel::monteCarloSweep(int numSweeps, UpdateMethod method, bool sequential) {
     void (IsingModel::*updateFunc)(int) = nullptr;
 
@@ -198,7 +182,7 @@ void IsingModel::monteCarloSweep(int numSweeps, UpdateMethod method, bool sequen
     if (sequential) {
         for (int sweep = 0; sweep < numSweeps; ++sweep) {
             for (int ind = 0; ind < L_ *L_ *L_; ++ind) {
-                (this->*updateFunc)(ind);  // Call the chosen update method
+                (this->*updateFunc)(ind);  
             }
         }
     }
@@ -206,47 +190,8 @@ void IsingModel::monteCarloSweep(int numSweeps, UpdateMethod method, bool sequen
         for (int sweep = 0; sweep < numSweeps; ++sweep) {
             for (int ind = 0; ind < L_ *L_ *L_; ++ind) {
                 int s = gsl_rng_uniform_int(r, L_ * L_ * L_);
-                (this->*updateFunc)(s);  // Call the chosen update method
+                (this->*updateFunc)(s);  
             }
         }
     }
 }
-
-
-    // if (sequential):
-    //     switch(method) {
-    //         case UpdateMethod::metropolis:
-    //             for (int sweep = 0; sweep < numSweeps; ++sweep) {
-    //                 for (int s = 0; s < L_ * L_ * L_; ++s) {
-    //                     method(s);
-    //                 }
-    //             }
-    //     }
-    // switch(method) {
-    //     case UpdateMethod::metropolis:
-    //         for (int sweep = 0; sweep < numSweeps; ++sweep) {
-    //             for (int s = 0; s < L_ * L_ * L_; ++s) {
-    //                 method(s);
-    //             }
-    //         }
-    //     case UpdateMethod::heatBath:
-
-    //     case UpdateMethod::wolff:
-
-    // }
-    // if (sequential) {
-    //     // Sequential update
-    //     for (int sweep = 0; sweep < numSweeps; ++sweep) {
-    //         for (int s = 0; s < L_ * L_ * L_; ++s) {
-    //             (this->*update)(s);
-    //         }
-    //     }
-    // } else {
-    //     // Random update
-    //     for (int sweep = 0; sweep < numSweeps; ++sweep) {
-    //         for (int s = 0; s < L_ * L_ * L_; ++s) {
-    //             int ind = gsl_rng_uniform_int(r, L_ * L_ * L_);
-    //             (this->*update)(ind);
-    //         }
-    //     }
-    // }
