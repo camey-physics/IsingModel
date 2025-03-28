@@ -23,7 +23,7 @@ public:
     }
     void setSpin(int i, int j, int k, int val);
     void setBeta(double beta);
-    void monteCarloSweep(int numSweeps, UpdateMethod method, bool sequential=0);
+    void updateSweep(int numSweeps, UpdateMethod method, bool sequential=0);
 
 private:
     int L_;
@@ -33,6 +33,7 @@ private:
     std::vector<int> spins_;
     std::vector<int> NT_;
 
+    // Monte Carlo update methods
     void metropolis(int i);
     void heatBath(int i);
     int wolff();

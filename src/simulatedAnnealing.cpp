@@ -78,13 +78,13 @@ void runSimulatedAnnealing(IsingModel &model, double betaStart, double betaEnd, 
         }
 
         // Equilibrate the system at current beta
-        model.monteCarloSweep(equilibrationSweeps, method, sequential);
+        model.updateSweep(equilibrationSweeps, method, sequential);
         model.setBeta(beta);
 
         // Take measurements at current beta
         for (int i = 0; i < numMeasurements; ++i) {
             // Perform a Monte Carlo sweep to update the system
-            model.monteCarloSweep(numSweeps, method, sequential);
+            model.updateSweep(numSweeps, method, sequential);
             double magnetization = model.calcMagnetization();
             m2[i] = magnetization *magnetization;
             m4[i] = m2[i] *m2[i];
@@ -105,7 +105,7 @@ void runSimulatedAnnealing(IsingModel &model, double betaStart, double betaEnd, 
 
 int main() {
     // Initialize Ising model
-    IsingModel model(10, 1.0, 5000, 1.0);
+    IsingModel model(6, 1.0, 5000, 1.0);
 
     // Simulated annealing parameters
     double betaStart = 0.15;
@@ -115,7 +115,7 @@ int main() {
     int equilibrationSweeps = 500;
     int numMeasurements = 100;
 
-    model.monteCarloSweep(1000, IsingModel::UpdateMethod::heatBath, true);
+    model.updateSweep(1000, IsingModel::UpdateMethod::heatBath, true);
 
     // Run the simulated annealing and measurement of Binder cumulant
     runSimulatedAnnealing(model, betaStart, betaEnd, betaStep, numSweeps, equilibrationSweeps, numMeasurements);

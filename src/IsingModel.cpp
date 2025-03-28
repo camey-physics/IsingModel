@@ -152,7 +152,7 @@ int IsingModel::wolff() {
     return clusterSize;
 }
 
-void IsingModel::monteCarloSweep(int numSweeps, UpdateMethod method, bool sequential) {
+void IsingModel::updateSweep(int numSweeps, UpdateMethod method, bool sequential) {
     void (IsingModel::*updateFunc)(int) = nullptr;
 
     switch (method) {
