@@ -66,34 +66,32 @@ void runSimulatedAnnealing(IsingModel &model, double betaStart, double betaEnd, 
     
     // Run annealing from betaStart to betaEnd
     for (double beta = betaStart; beta <= betaEnd; beta += betaStep) {
-        // Equilibrate the system at current beta
-        model.setBeta(beta);
+        IsingModel::UpdateMethod method;
+        bool sequential;
         if (beta < 0.2) {
-            model.monteCarloSweep(equilibrationSweeps, true, &IsingModel::heatBath); // Equilibrate
+            method = IsingModel::UpdateMethod::heatBath;
+            sequential = true;
         }
         else {
-            for (int i = 0; i < 1000; ++i)
-                model.wolffUpdate();
+            method = IsingModel::UpdateMethod::wolff;
+            sequential = false;
         }
+
+        // Equilibrate the system at current beta
+        model.monteCarloSweep(equilibrationSweeps, method, sequential);
+        model.setBeta(beta);
 
         // Take measurements at current beta
         for (int i = 0; i < numMeasurements; ++i) {
             // Perform a Monte Carlo sweep to update the system
-            if (beta < 0.2) {
-                model.monteCarloSweep(numSweeps, true, &IsingModel::heatBath); // Sweep
-            }
-            else {
-                for (int i = 0; i < 500; ++i)
-                    model.wolffUpdate();
-            }
-
+            model.monteCarloSweep(numSweeps, method, sequential);
             double magnetization = model.calcMagnetization();
             m2[i] = magnetization *magnetization;
             m4[i] = m2[i] *m2[i];
         }
 
         // Calculate the Binder cumulant
-        auto [binderCumulant, binderError] = bootstrapBinderCumulant(m2, m4, r, 6000);
+        auto [binderCumulant, binderError] = bootstrapBinderCumulant(m2, m4, r, 1000);
 
         // Output the results for this beta
         outFile << beta << " " << binderCumulant << " " << binderError << std::endl;
@@ -107,18 +105,18 @@ void runSimulatedAnnealing(IsingModel &model, double betaStart, double betaEnd, 
 
 int main() {
     // Initialize Ising model
-    IsingModel model(18, 1.0, 5000, 1.0);
+    IsingModel model(10, 1.0, 5000, 1.0);
 
     // Simulated annealing parameters
     double betaStart = 0.15;
     double betaEnd = 0.25;
     double betaStep = 0.01;
-    int numSweeps = 100;
-    int equilibrationSweeps = 200;
+    int numSweeps = 200;
+    int equilibrationSweeps = 500;
     int numMeasurements = 100;
 
 
-    model.monteCarloSweep(1000, true, &IsingModel::heatBath);
+    model.monteCarloSweep(1000, IsingModel::UpdateMethod::heatBath, true);
 
     // Run the simulated annealing and measurement of Binder cumulant
     runSimulatedAnnealing(model, betaStart, betaEnd, betaStep, numSweeps, equilibrationSweeps, numMeasurements);

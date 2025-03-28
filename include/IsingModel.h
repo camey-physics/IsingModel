@@ -11,6 +11,8 @@ public:
     explicit IsingModel(int L = 4, double beta = 1, int seed = 5000, double J = 1); // Constructor
     ~IsingModel();
 
+    enum class UpdateMethod { metropolis, heatBath, wolff };
+
     int getSpin(int i, int j, int k) const; // Accessor for spins
     std::vector<int> getNeighbors(int index) const;
     double calcEnergy() const;
@@ -21,10 +23,7 @@ public:
     }
     void setSpin(int i, int j, int k, int val);
     void setBeta(double beta);
-    void metropolis(int i);
-    void heatBath(int i);
-    void wolffUpdate();
-    void monteCarloSweep(int numSweeps, bool sequential=0, void (IsingModel::*update)(int) = &IsingModel::metropolis);
+    void monteCarloSweep(int numSweeps, UpdateMethod method, bool sequential=0);
 
 private:
     int L_;
@@ -34,7 +33,9 @@ private:
     std::vector<int> spins_;
     std::vector<int> NT_;
 
-    double energy_;
+    void metropolis(int i);
+    void heatBath(int i);
+    int wolff();
 
     inline int index(int i, int j, int k) const;
     inline int mod(int i) const;
