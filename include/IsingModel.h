@@ -13,16 +13,22 @@ public:
 
     enum class UpdateMethod { metropolis, heatBath, wolff };
 
+    // Observer methods
     int getSpin(int i, int j, int k) const;
     std::vector<int> getNeighbors(int index) const;
-    double calcEnergy() const;
     double getBeta() const;
-    double calcMagnetization() const;
     auto getParams() const {
         return std::make_tuple(L_, J_, beta_, seed_);
     }
+
+    // Modifier methods
     void setSpin(int i, int j, int k, int val);
     void setBeta(double beta);
+
+    // Computation methods
+    double calcEnergy() const;
+    double calcMagnetization() const;
+
     void updateSweep(int numSweeps, UpdateMethod method, bool sequential=0);
 
 private:
