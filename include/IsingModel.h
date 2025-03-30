@@ -1,15 +1,17 @@
 #ifndef ISING_MODEL_H
 #define ISING_MODEL_H
 
+#include "Model.h"
 #include <vector>
 #include <gsl/gsl_rng.h>
 #include <memory>
 #include <tuple>
 
-class IsingModel {
+class IsingModel : public Model {
 public:
     explicit IsingModel(int L = 4, double beta = 1, int seed = 5000, double J = 1);
     ~IsingModel();
+    void copyStateFrom(const Model& other) override;
 
     enum class UpdateMethod { metropolis, heatBath, wolff };
 
@@ -26,8 +28,12 @@ public:
     void setBeta(double beta);
 
     // Computation methods
-    double calcEnergy() const;
+    double calcEnergy() const override;
     double calcMagnetization() const;
+
+    void updateSweep(int numSweeps) override {
+        updateSweep(numSweeps, UpdateMethod::metropolis, false);
+    }
 
     void updateSweep(int numSweeps, UpdateMethod method, bool sequential=0);
 
