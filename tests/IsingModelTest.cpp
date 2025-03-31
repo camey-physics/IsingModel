@@ -93,6 +93,24 @@ TEST(IsingModelTest, HeatBathSweep) {
     EXPECT_NEAR(avg_mag, 0.0, 5e-2);
 }
 
+TEST(IsingModelTest, CopyState) {
+    IsingModel model(10, 0.1, 497235), model2(5);
+
+    model.updateSweep(100, IsingModel::UpdateMethod::heatBath, true);
+    model2.copyStateFrom(model);
+        
+    EXPECT_EQ(model.calcEnergy(), model2.calcEnergy());
+
+    auto [L, J, beta, seed] = model.getParams();
+    auto [L2, J2, beta2, seed2] = model2.getParams();
+
+    EXPECT_EQ(L, L2);
+    EXPECT_EQ(J, J2);
+    EXPECT_EQ(beta, beta2);
+    EXPECT_EQ(seed, 497235);
+    EXPECT_EQ(seed2, 5000);
+}
+
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

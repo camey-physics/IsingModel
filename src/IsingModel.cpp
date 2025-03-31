@@ -11,6 +11,15 @@ IsingModel::IsingModel(int L, double beta, int seed, double J) : L_(L), J_(J), b
     calcEnergy();
 }
 
+void IsingModel::copyStateFrom(const Model& other) {
+    const IsingModel& isingOther = static_cast<const IsingModel&>(other);
+    this->spins_ = isingOther.spins_;
+    this->L_ = isingOther.L_;
+    this->beta_ = isingOther.beta_;
+    this->NT_ = isingOther.NT_;
+    this->J_ = isingOther.J_;
+}
+
 void IsingModel::initializeNT() {
     NT_.resize(L_ *L_ *L_ *6);
     for (int i = 0; i < L_; ++i) {
