@@ -63,7 +63,7 @@ TEST(IsingModelTest, MetropolisSweep) {
     model.setBeta(beta);
     double avg_energy = 0.0, avg_mag = 0.0;
     for (int i = 0; i < numSamples; ++i) {
-        model.monteCarloSweep(100);
+        model.updateSweep(100, IsingModel::UpdateMethod::metropolis, true);
         avg_energy += model.calcEnergy();
         avg_mag += model.calcMagnetization();
     }
@@ -82,7 +82,7 @@ TEST(IsingModelTest, HeatBathSweep) {
     model.setBeta(beta);
     double avg_energy = 0.0, avg_mag = 0.0;
     for (int i = 0; i < numSamples; ++i) {
-        model.monteCarloSweep(100, 0, &IsingModel::heatBath);
+        model.updateSweep(100, IsingModel::UpdateMethod::heatBath, true);
         avg_energy += model.calcEnergy();
         avg_mag += model.calcMagnetization();
     }
@@ -91,6 +91,24 @@ TEST(IsingModelTest, HeatBathSweep) {
     
     EXPECT_NEAR(avg_energy, -3/2 *tanh(3*beta), 5e-2);
     EXPECT_NEAR(avg_mag, 0.0, 5e-2);
+}
+
+TEST(IsingModelTest, CopyState) {
+    IsingModel model(10, 0.1, 497235), model2(5);
+
+    model.updateSweep(100, IsingModel::UpdateMethod::heatBath, true);
+    model2.copyStateFrom(model);
+        
+    EXPECT_EQ(model.calcEnergy(), model2.calcEnergy());
+
+    auto [L, J, beta, seed] = model.getParams();
+    auto [L2, J2, beta2, seed2] = model2.getParams();
+
+    EXPECT_EQ(L, L2);
+    EXPECT_EQ(J, J2);
+    EXPECT_EQ(beta, beta2);
+    EXPECT_EQ(seed, 497235);
+    EXPECT_EQ(seed2, 5000);
 }
 
 int main(int argc, char **argv) {

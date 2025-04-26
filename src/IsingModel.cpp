@@ -11,6 +11,15 @@ IsingModel::IsingModel(int L, double beta, int seed, double J) : L_(L), J_(J), b
     calcEnergy();
 }
 
+void IsingModel::copyStateFrom(const Model& other) {
+    const IsingModel& isingOther = static_cast<const IsingModel&>(other);
+    this->spins_ = isingOther.spins_;
+    this->L_ = isingOther.L_;
+    this->beta_ = isingOther.beta_;
+    this->NT_ = isingOther.NT_;
+    this->J_ = isingOther.J_;
+}
+
 void IsingModel::initializeNT() {
     NT_.resize(L_ *L_ *L_ *6);
     for (int i = 0; i < L_; ++i) {
@@ -65,7 +74,6 @@ void IsingModel::setSpin(int i, int j, int k, int val) {
     }
     int local_h = calcLocalH(index(i, j, k));
     spins_[index(i, j, k)] = val;
-    energy_ += -2 *J_ *local_h *val; // deltaE = -2*J*s_i*sum_j(s_<ij>)
 }
 
 void IsingModel::setBeta(double beta) {
@@ -116,9 +124,12 @@ void IsingModel::heatBath(int i) {
     }
 }
 
-void IsingModel::wolffUpdate() {
+
+int IsingModel::wolff() {
     std::vector<bool> visited(L_ * L_ * L_, false);
     std::vector<int> stack;
+    int clusterSize = 0;  // To keep track of the cluster size
+
 
     // Pick a random starting spin
     int ind = gsl_rng_uniform_int(r, L_ * L_ * L_);
@@ -135,6 +146,9 @@ void IsingModel::wolffUpdate() {
         // Flip spin
         spins_[i] *= -1;
 
+        clusterSize++;  // Increment cluster size
+
+
         // Check neighbors
         for (int n = 0; n < 6; ++n) {
             int j = NT_[i * 6 + n]; // Neighbor index
@@ -146,22 +160,52 @@ void IsingModel::wolffUpdate() {
             }
         }
     }
+
+
+    // Return the size of the cluster
+    return clusterSize;
 }
 
-void IsingModel::monteCarloSweep(int numSweeps, bool sequential, void (IsingModel::*update)(int)) {
+void IsingModel::updateSweep(int numSweeps, UpdateMethod method, bool sequential) {
+    void (IsingModel::*updateFunc)(int) = nullptr;
+
+    switch (method) {
+        case UpdateMethod::metropolis:
+            updateFunc = &IsingModel::metropolis;
+            break;
+        case UpdateMethod::heatBath:
+            updateFunc = &IsingModel::heatBath;
+            break;
+        case UpdateMethod::wolff:
+            if (sequential) {
+                throw std::invalid_argument("Wolff update cannot be used with sequential mode!");
+            }
+            // Wolff method handled separately below
+            for (int sweep = 0; sweep < numSweeps; ++sweep) {
+                int numFlipped = 0;
+                while (numFlipped < L_ * L_ * L_) {
+                    numFlipped += wolff();
+                }
+            }
+            return;
+        default:
+            throw std::invalid_argument("Unknown update method!");
+    }
+
+    // For Metropolis and HeatBath, use the chosen update function pointer
+
     if (sequential) {
-        // Sequential update
         for (int sweep = 0; sweep < numSweeps; ++sweep) {
-            for (int s = 0; s < L_ * L_ * L_; ++s) {
-                (this->*update)(s);
+            for (int ind = 0; ind < L_ *L_ *L_; ++ind) {
+                (this->*updateFunc)(ind);  
             }
         }
-    } else {
-        // Random update
+    }
+    else {
         for (int sweep = 0; sweep < numSweeps; ++sweep) {
-            for (int s = 0; s < L_ * L_ * L_; ++s) {
-                int ind = gsl_rng_uniform_int(r, L_ * L_ * L_);
-                (this->*update)(ind);
+            for (int ind = 0; ind < L_ *L_ *L_; ++ind) {
+                int s = gsl_rng_uniform_int(r, L_ * L_ * L_);
+                (this->*updateFunc)(s);  
             }
         }
     }
