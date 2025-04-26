@@ -46,5 +46,5 @@ make
 
 This will generate:
 
-- `simulatedAnnealing` — the basic simulated annealing program
-- `IsingModelTest` — the unit tests executable
+- simulatedAnnealing — the basic simulated annealing program
+- IsingModelTest — the unit tests executable
