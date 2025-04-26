@@ -36,10 +36,15 @@ This project implements a three-dimensional (3D) Ising model with periodic bound
 
 This project uses CMake for configuration.
 
-Typical build steps:
+Build steps:
 
 ```bash
 mkdir build
 cd build
 cmake ..
 make
+
+This will generate:
+
+- `simulatedAnnealing` — the basic simulated annealing program
+- `IsingModelTest` — the unit tests executable
