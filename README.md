@@ -43,8 +43,9 @@ mkdir build
 cd build
 cmake ..
 make
+```
 
-This will generate:
+**This will generate:**
 
 - simulatedAnnealing — the basic simulated annealing program
 - IsingModelTest — the unit tests executable
