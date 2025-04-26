@@ -124,10 +124,12 @@ void IsingModel::heatBath(int i) {
     }
 }
 
+
 int IsingModel::wolff() {
     std::vector<bool> visited(L_ * L_ * L_, false);
     std::vector<int> stack;
     int clusterSize = 0;  // To keep track of the cluster size
+
 
     // Pick a random starting spin
     int ind = gsl_rng_uniform_int(r, L_ * L_ * L_);
@@ -143,7 +145,9 @@ int IsingModel::wolff() {
 
         // Flip spin
         spins_[i] *= -1;
+
         clusterSize++;  // Increment cluster size
+
 
         // Check neighbors
         for (int n = 0; n < 6; ++n) {
@@ -156,6 +160,7 @@ int IsingModel::wolff() {
             }
         }
     }
+
 
     // Return the size of the cluster
     return clusterSize;
@@ -188,6 +193,7 @@ void IsingModel::updateSweep(int numSweeps, UpdateMethod method, bool sequential
     }
 
     // For Metropolis and HeatBath, use the chosen update function pointer
+
     if (sequential) {
         for (int sweep = 0; sweep < numSweeps; ++sweep) {
             for (int ind = 0; ind < L_ *L_ *L_; ++ind) {

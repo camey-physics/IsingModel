@@ -27,6 +27,7 @@ public:
     void setSpin(int i, int j, int k, int val);
     void setBeta(double beta);
 
+
     // Computation methods
     double calcEnergy() const override;
     double calcMagnetization() const;
@@ -36,6 +37,7 @@ public:
     }
 
     void updateSweep(int numSweeps, UpdateMethod method, bool sequential=0);
+
 
 private:
     int L_;
